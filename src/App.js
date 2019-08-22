@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { render } from 'react-dom'
+import './index.styl'
 
 Array.prototype.asyncForEach = function (callback) {
     return new Promise(resolve => {
@@ -22,7 +23,9 @@ class App extends Component {
 
     async getData () {
         console.log('Getting data from the server...')
-        const request = await fetch('https://raw.githubusercontent.com/rrafols/mobile_test/master/data.json')
+        const request = await fetch('https://raw.githubusercontent.com/rrafols/mobile_test/master/data.json', {
+            cache: 'default'
+        })
         const jsonResponse = await request.json()
         this.setState({
             users: jsonResponse.Brastlewark
@@ -35,6 +38,7 @@ class App extends Component {
         let formattedUsers = this.state.users.map(user => {
             return (
                 <User
+                    className="user"
                     id={user.id}
                     name={user.name}
                     thumbnail={user.thumbnail}
@@ -53,9 +57,9 @@ class App extends Component {
 
     render () {
         return (
-            <div>
-                <h1>Brastlewark Population</h1>
-                <div>
+            <div className="main-container">
+                <h1 className="title">Brastlewark Population</h1>
+                <div className="users-container">
                     {this.state.formattedUsers}
                 </div>
             </div>
@@ -71,13 +75,15 @@ const User = (props) => {
         <li key={friend}>{friend}</li>
     ))
     return (
-        <div data-id={props.id}>
-            <p>Name: {props.name}</p>
-            <img src={props.thumbnail} alt={props.name} />
-            <p>Age: {props.age}</p>
-            <p>Weight: {props.weight}</p>
-            <p>Height: {props.height}</p>
-            <p>Hair color: {props.hair_color}</p>
+        <div data-id={props.id} className={props.className}>
+            <h3>{props.name}</h3>
+            <div className="image-cropper">
+                <img src={props.thumbnail} alt={props.name} />
+            </div>
+            <p>{props.age} years old</p>
+            <p>{props.weight.toFixed(2)} Kg</p>
+            <p>{props.height.toFixed(2)} meters tall</p>
+            <p>Has a {props.hair_color} hair color</p>
             <ul>
                 {professions}
             </ul>
