@@ -17,8 +17,54 @@ class App extends Component {
         this.state = {
             users: [],
             formattedUsers: [],
+            renderStart: 0, // To determine what range of elements is being rendered
+            renderFinish: 30,
+            initialElements: 30,
+            growthRate: 10, // Growth rate has to always be smaller to avoid getting stuck in the same position
+            goingDown: true,
+            previousScrollPosition: 0,
+            cachedImages: {},
         }
         this.getData()
+    }
+
+    componentDidMount () {
+        window.addEventListener('scroll', () => {
+            this.handleScroll()
+        })
+    }
+
+    handleScroll () {
+        // Activate only every 10 scroll lines to recalculate direction
+        if(window.scrollY % 10 == 0) {
+            this.setState({
+                goingDown: window.scrollY > this.state.previousScrollPosition,
+                previousScrollPosition: window.scrollY,
+            })
+            this.cacheImages()
+        }
+
+        // When going up, remove elements up until you reach the initial state
+        if(!this.state.goingDown && window.scrollY < document.documentElement.scrollHeight * 0.30) {
+            const startPosition = this.state.renderStart - this.state.growthRate
+            const finishPosition = this.state.renderFinish - this.state.growthRate
+            this.setState({
+                renderStart: startPosition <= 0 ? 0 : startPosition,
+                renderFinish: finishPosition <= this.state.initialElements ? this.state.initialElements : finishPosition,
+            }, () => {
+                this.formatUsers(this.state.renderStart, this.state.renderFinish)
+            })
+        }
+
+        // If we scrolled 50% of the page, render new items while removing old ones
+        if(this.state.goingDown && window.scrollY > document.documentElement.scrollHeight * 0.70) {
+            this.setState({
+                renderStart: this.state.renderStart + this.state.growthRate,
+                renderFinish: this.state.renderFinish + this.state.growthRate,
+            }, () => {
+                this.formatUsers(this.state.renderStart, this.state.renderFinish)
+            })
+        }
     }
 
     async getData () {
@@ -30,18 +76,42 @@ class App extends Component {
         this.setState({
             users: jsonResponse.Brastlewark
         })
-        this.formatUsers()
+
+        this.formatUsers(this.state.renderStart, this.state.renderFinish)
     }
 
-    async formatUsers () {
-        console.log('Formatting users...')
-        let formattedUsers = this.state.users.map(user => {
+    // To cache images as you scroll. They will stay loaded for repeated offenders
+    async cacheImages () {
+        // Create a hash map to store the images in the local storage for caching accesing a map takes linear time O(1) so it's optimal
+        let thumbnailsMap = this.state.cachedImages
+        let addedImage = false
+        const allImagesLoaded = document.querySelectorAll('img')
+        const allImagesLoadedArray = Array.from(allImagesLoaded)
+        allImagesLoadedArray.map(async (img, index) => {
+            // Get the image object and store it in the map as the loaded image
+            if(!thumbnailsMap[img.src]) {
+                addedImage = true
+                thumbnailsMap[img.src] = allImagesLoaded[index]
+            }
+        })
+        if(!addedImage) {
+            console.log('map', thumbnailsMap)
+            this.setState({ cachedImages: thumbnailsMap })
+        }
+    }
+
+    async formatUsers (renderStart, renderFinish) {
+        // Render only the first 100 and load the rest on scroll
+        const firstHundred = this.state.users.slice(renderStart, renderFinish)
+        let formattedUsers = firstHundred.map(user => {
+            const thumbnail = this.state.cachedImages[user.thumbnail] ?
+                this.state.cachedImages[user.thumbnail] :
+                (<img src={user.thumbnail} alt={user.name} />)
             return (
                 <User
                     className="user"
                     id={user.id}
                     name={user.name}
-                    thumbnail={user.thumbnail}
                     age={user.age}
                     weight={user.weight}
                     height={user.height}
@@ -49,7 +119,7 @@ class App extends Component {
                     professions={user.professions}
                     friends={user.friends}
                     key={user.id}
-                />
+                >{thumbnail}</ User>
             )
         })
         this.setState({formattedUsers})
@@ -78,12 +148,12 @@ const User = (props) => {
         <div data-id={props.id} className={props.className}>
             <h3>{props.name}</h3>
             <div className="image-cropper">
-                <img src={props.thumbnail} alt={props.name} />
+                {props.children}
             </div>
+            <p>Has a {props.hair_color} hair color</p>
             <p>{props.age} years old</p>
             <p>{props.weight.toFixed(2)} Kg</p>
-            <p>{props.height.toFixed(2)} meters tall</p>
-            <p>Has a {props.hair_color} hair color</p>
+            <p>{props.height.toFixed(2)} cm tall</p>
             <ul>
                 {professions}
             </ul>
