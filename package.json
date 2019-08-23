@@ -6,12 +6,14 @@
     "scripts": {
         "test": "jest",
         "watch": "NODE_ENV=development npx webpack -w",
-        "dev": "NODE_ENV=development http-server dist"
+        "dev": "NODE_ENV=development http-server dist",
+        "start": "NODE_ENV=production http-server dist"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "http-server": "^0.11.1",
         "react": "^16.5.2",
         "react-dom": "^16.5.2",
         "react-router-dom": "^4.3.1"
