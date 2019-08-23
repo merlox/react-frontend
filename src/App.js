@@ -15,12 +15,14 @@ class App extends Component {
     constructor () {
         super()
         this.state = {
+            loading: true,
             users: [],
+            renderElements: [], // The elements from which we render users, used by filters
             formattedUsers: [],
             renderStart: 0, // To determine what range of elements is being rendered
             renderFinish: 50,
             initialElements: 50,
-            growthRate: 20, // Growth rate has to always be smaller to avoid getting stuck in the same position
+            growthRate: 20, // Growth rate has to always be smaller to avoid getting stuck in the same scrolling position
             goingDown: true,
             previousScrollPosition: 0,
             cachedImages: {},
@@ -82,7 +84,8 @@ class App extends Component {
         })
         const jsonResponse = await request.json()
         this.setState({
-            users: jsonResponse.Brastlewark
+            users: jsonResponse.Brastlewark,
+            renderElements: jsonResponse.Brastlewark,
         })
 
         this.formatUsers(this.state.renderStart, this.state.renderFinish)
@@ -108,6 +111,7 @@ class App extends Component {
 
         if(this.state[stateType].length == 0) {
             newTypes = true
+            types.push('None')
             this.state.users.map(user => {
                 user[arrayType].map(type => {
                     if(types.indexOf(type) == -1) {
@@ -167,10 +171,13 @@ class App extends Component {
      * @param  {int}  renderFinish The ending position from which you can display elements
      */
     async formatUsers (renderStart, renderFinish) {
-        // Render only the first 100 and load the rest on scroll
-        const firstHundred = this.state.users.slice(renderStart, renderFinish)
+        this.setState({
+            loading: true,
+        })
+        // Render only the first initial slice and load the rest on scroll
+        const slice = this.state.renderElements.slice(renderStart, renderFinish)
         let thumbnails = []
-        let formattedUsers = firstHundred.map(user => {
+        let formattedUsers = slice.map(user => {
             const thumbnail = this.state.cachedImages[user.thumbnail] ?
                 (this.state.cachedImages[user.thumbnail]) :
                 (<img src={user.thumbnail} alt={user.name}/>)
@@ -191,9 +198,33 @@ class App extends Component {
             )
         })
         this.setState({
-            formattedUsers
+            formattedUsers,
+            loading: false,
         }, () => {
             this.cacheImages(thumbnails)
+        })
+    }
+
+    /**
+     * Updates the state array of `renderElements` to show only those that have the
+     * selected profession or friend
+     * @param  {string} value The friend or profession selected to filter
+     */
+    filterByValue (value) {
+        let renderElements
+        if(this.state.selectedFilter == 'profession') {
+            renderElements = this.state.users.filter(user => {
+                return user.professions.indexOf(value) != -1
+            })
+        } else if(this.state.selectedFilter == 'friend') {
+            renderElements = this.state.users.filter(user => {
+                return user.friends.indexOf(value) != -1
+            })
+        }
+        this.setState({
+            renderElements
+        }, () => {
+            this.formatUsers(this.state.renderStart, this.state.renderFinish)
         })
     }
 
@@ -212,16 +243,20 @@ class App extends Component {
                             this.getAllProfessionsOrFriends('friends')
                         }
                     }}>
-                        <option value="none">none</option>
-                        <option value="profession">profession</option>
-                        <option value="friend">friend</option>
+                        <option value="none">None</option>
+                        <option value="profession">Profession</option>
+                        <option value="friend">Friend</option>
                     </select>
                     <div className={this.state.selectedFilter == 'none' ? 'hidden' : ''}>&nbsp;></div>
-                    <select className={this.state.selectedFilter == 'none' ? 'hidden' : ''}>
+                    <select onChange={e => {
+                        const selectedValue = e.target.children[e.target.selectedIndex].value
+                        this.filterByValue(selectedValue)
+                    }} className={this.state.selectedFilter == 'none' ? 'hidden' : ''}>
                         {this.state.filterByOptions}
                     </select>
                 </div>
                 <div className="users-container">
+                    {this.state.loading ? <img src="spinner.gif" alt="Loading spinner" className="spinner"/> : ''}
                     {this.state.formattedUsers}
                 </div>
             </div>
