@@ -89,33 +89,56 @@ class App extends Component {
     }
 
     /**
-     * Loops through all the users and captures the unique professions to set them in the `allProfessions` state variable
-     * required to display the filtering options when the users wants to filter by professions
+     * Loops through all the users and captures the unique professions or friends
+     * to set them in the `allProfessions` or `allFriends` state variable required
+     * to display the filtering options when the users wants to filter by a type
+     * @param  {string}  typeSelected  Whether you want the professions or friends type
      */
-    getAllProfessions () {
-        if(this.state.allProfessions.length == 0) {
-            let professions = []
+    getAllProfessionsOrFriends (typeSelected) {
+        let newTypes = false
+        let types = []
+        let typesJSX = []
+        let stateType = 'allFriends'
+        let arrayType = 'friends'
+
+        if(typeSelected == 'professions') {
+            stateType = 'allProfessions'
+            arrayType = 'professions'
+        }
+
+        if(this.state[stateType].length == 0) {
+            newTypes = true
             this.state.users.map(user => {
-                user.professions.map(profession => {
-                    if(professions.indexOf(profession) == -1) {
-                        professions.push(profession)
+                user[arrayType].map(type => {
+                    if(types.indexOf(type) == -1) {
+                        types.push(type)
                     }
                 })
             })
             this.setState({
-                allProfessions: professions
+                [stateType]: types
+            })
+        }
+        // If the professions have been generated already, simply recreate the JSX
+        if(newTypes) {
+            types.map(type => {
+                let jsx = (
+                    <option value={type} key={type}>{type}</option>
+                )
+                typesJSX.push(jsx)
             })
         } else {
-            // If the professions have been generated already, simply recreate the JSX
+            this.state[stateType].map(type => {
+                let jsx = (
+                    <option value={type} key={type}>{type}</option>
+                )
+                typesJSX.push(jsx)
+            })
         }
-    }
 
-    /**
-     * Loops through all the users and captures the unique friends to set them in the `allProfessions` state variable
-     * required to display the filtering options when the users wants to filter by friends
-     */
-    getAllFriends () {
-        // const
+        this.setState({
+            filterByOptions: typesJSX
+        })
     }
 
     /**
@@ -184,9 +207,9 @@ class App extends Component {
                         const selectedFilter = e.target.children[e.target.selectedIndex].value
                         this.setState({ selectedFilter })
                         if(selectedFilter == 'profession') {
-                            this.getAllProfessions()
+                            this.getAllProfessionsOrFriends('professions')
                         } else if(selectedFilter == 'friend') {
-                            this.getAllFriends()
+                            this.getAllProfessionsOrFriends('friends')
                         }
                     }}>
                         <option value="none">none</option>
