@@ -24,6 +24,10 @@ class App extends Component {
             goingDown: true,
             previousScrollPosition: 0,
             cachedImages: {},
+            filterByOptions: [],
+            selectedFilter: 'none',
+            allFriends: [],
+            allProfessions: [],
         }
         this.getData()
     }
@@ -34,6 +38,9 @@ class App extends Component {
         })
     }
 
+    /**
+     * Loads elements as the user scrolls in either direction using the state variable `growthRate`
+     */
     handleScroll () {
         // Activate only every 10 scroll lines to recalculate direction
         if(window.scrollY % 10 == 0) {
@@ -66,8 +73,10 @@ class App extends Component {
         }
     }
 
+    /**
+     * Gets the initial data from github and calles `formatUsers()` to display the initial elements
+     */
     async getData () {
-        console.log('Getting data from the server...')
         const request = await fetch('https://raw.githubusercontent.com/rrafols/mobile_test/master/data.json', {
             cache: 'default'
         })
@@ -79,7 +88,40 @@ class App extends Component {
         this.formatUsers(this.state.renderStart, this.state.renderFinish)
     }
 
-    // To cache images as you scroll. They will stay loaded for repeated offenders
+    /**
+     * Loops through all the users and captures the unique professions to set them in the `allProfessions` state variable
+     * required to display the filtering options when the users wants to filter by professions
+     */
+    getAllProfessions () {
+        if(this.state.allProfessions.length == 0) {
+            let professions = []
+            this.state.users.map(user => {
+                user.professions.map(profession => {
+                    if(professions.indexOf(profession) == -1) {
+                        professions.push(profession)
+                    }
+                })
+            })
+            this.setState({
+                allProfessions: professions
+            })
+        } else {
+            // If the professions have been generated already, simply recreate the JSX
+        }
+    }
+
+    /**
+     * Loops through all the users and captures the unique friends to set them in the `allProfessions` state variable
+     * required to display the filtering options when the users wants to filter by friends
+     */
+    getAllFriends () {
+        // const
+    }
+
+    /**
+     * Caches images in the react state object as you scroll to instantly load repeated images
+     * @param  {array}  thumbnails The array of images loaded during this scroll position
+     */
     async cacheImages (thumbnails) {
         // Create a hash map to store the images in the local storage for caching accesing a map takes linear time O(1) so it's optimal
         let thumbnailsMap = this.state.cachedImages
@@ -96,6 +138,11 @@ class App extends Component {
         }
     }
 
+    /**
+     * Displays the formatted data using css and html
+     * @param  {int}  renderStart  The starting position from which you can display elements
+     * @param  {int}  renderFinish The ending position from which you can display elements
+     */
     async formatUsers (renderStart, renderFinish) {
         // Render only the first 100 and load the rest on scroll
         const firstHundred = this.state.users.slice(renderStart, renderFinish)
@@ -131,6 +178,26 @@ class App extends Component {
         return (
             <div className="main-container">
                 <h1 className="title">Brastlewark Population</h1>
+                <div className="filter">
+                    <div>FILTER BY</div>
+                    <select onChange={e => {
+                        const selectedFilter = e.target.children[e.target.selectedIndex].value
+                        this.setState({ selectedFilter })
+                        if(selectedFilter == 'profession') {
+                            this.getAllProfessions()
+                        } else if(selectedFilter == 'friend') {
+                            this.getAllFriends()
+                        }
+                    }}>
+                        <option value="none">none</option>
+                        <option value="profession">profession</option>
+                        <option value="friend">friend</option>
+                    </select>
+                    <div className={this.state.selectedFilter == 'none' ? 'hidden' : ''}>&nbsp;></div>
+                    <select className={this.state.selectedFilter == 'none' ? 'hidden' : ''}>
+                        {this.state.filterByOptions}
+                    </select>
+                </div>
                 <div className="users-container">
                     {this.state.formattedUsers}
                 </div>
