@@ -152,16 +152,20 @@ const User = (props) => {
             <div className="image-cropper">
                 {props.children}
             </div>
-            <p>Has a {props.hair_color} hair color</p>
-            <p>{props.age} years old</p>
-            <p>{props.weight.toFixed(2)} Kg</p>
-            <p>{props.height.toFixed(2)} cm tall</p>
-            <ul>
-                {professions}
-            </ul>
-            <ul>
-                {friends}
-            </ul>
+            <div className="hair-color">{props.hair_color} hair color</div>
+            <div className="measurements">
+                <div>{props.age} y/o</div>
+                <div>{props.weight.toFixed(2)} kg</div>
+                <div>{props.height.toFixed(2)} cm</div>
+            </div>
+            <div className="lists">
+                <div>PROFESSIONS</div>
+                <ul>{professions}</ul>
+            </div>
+            <div className="lists">
+                <div>FRIENDS WITH</div>
+                <ul>{friends}</ul>
+            </div>
         </div>
     )
 }
