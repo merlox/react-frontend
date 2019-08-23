@@ -1,17 +1,7 @@
 import React, { Component } from 'react'
-import { render } from 'react-dom'
 import './index.styl'
 
-Array.prototype.asyncForEach = function (callback) {
-    return new Promise(resolve => {
-        for(let i = 0; i < this.length; i++) {
-            callback(this[i], i, this)
-        }
-        resolve()
-    })
-}
-
-class App extends Component {
+export default class App extends Component {
     constructor () {
         super()
         this.state = {
@@ -302,5 +292,3 @@ const User = (props) => {
         </div>
     )
 }
-
-render(<App />, document.querySelector('#root'))

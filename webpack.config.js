@@ -8,7 +8,7 @@ module.exports = {
     devtool: process.env.NODE_ENV === 'production' ? '' : 'eval-source-map',
     entry: [
         'babel-polyfill',
-        path.join(__dirname, 'src', 'App.js')
+        path.join(__dirname, 'src', 'index.js')
     ],
     output: {
         path: path.join(__dirname, 'dist'),
