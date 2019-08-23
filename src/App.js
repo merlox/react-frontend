@@ -21,10 +21,10 @@ export default class App extends Component {
             allFriends: [],
             allProfessions: [],
         }
-        this.getData()
     }
 
     componentDidMount () {
+        this.getData()
         window.addEventListener('scroll', () => {
             this.handleScroll()
         })

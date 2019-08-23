@@ -1,25 +1,12 @@
-import React, { Component, useState } from 'react'
-import { render, unmountComponentAtNode } from 'react-dom'
+import React, { Component } from 'react'
+import { create } from 'react-test-renderer'
 import 'isomorphic-fetch'
-import { act } from 'react-dom/test-utils'
 import "regenerator-runtime/runtime" // Required to use async / await
 import App from '../App'
 
-let container
-
-beforeEach(() => {
-    container = document.createElement('div')
-    document.body.appendChild(container)
-})
-
-afterEach(() => {
-    unmountComponentAtNode(container)
-    container.remove()
-    container = null
-})
 
 describe('App component', () => {
-    test('it shows a list of users', async () => {
+    test('the get data method should set the users in state successfully', async () => {
         const fakeResponse = {
             "Brastlewark": [
                 {
@@ -62,6 +49,8 @@ describe('App component', () => {
                     }
                 ]
             }
+        const component = create(<App />)
+        const instance = component.getInstance()
 
         jest.spyOn(window, 'fetch').mockImplementation(() => {
             const fetchResponse = {
@@ -70,11 +59,7 @@ describe('App component', () => {
             return Promise.resolve(fetchResponse)
         })
 
-        await act(async () => {
-            render(<App/>, container)
-        })
-        console.log('CONTENT', container.textContent)
-        // expect(container.textContent).toBe('John DoeKevin Mitnick')
-        window.fetch.mockRestore()
+        await instance.getData()
+        expect(instance.state.users).toBe(fakeResponse.Brastlewark)
     })
 })
