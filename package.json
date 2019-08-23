@@ -4,10 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "watch": "set NODE_ENV=development&& npx webpack -w",
-        "dev": "set NODE_ENV=development&& http-server dist",
-        "watch-mac": "NODE_ENV=development npx webpack -w",
-        "dev-mac": "NODE_ENV=development http-server dist"
+        "watch": "NODE_ENV=development npx webpack -w",
+        "dev": "NODE_ENV=development http-server dist"
     },
     "keywords": [],
     "author": "",

@@ -41,7 +41,6 @@ class App extends Component {
                 goingDown: window.scrollY > this.state.previousScrollPosition,
                 previousScrollPosition: window.scrollY,
             })
-            this.cacheImages()
         }
 
         // When going up, remove elements up until you reach the initial state
@@ -81,21 +80,18 @@ class App extends Component {
     }
 
     // To cache images as you scroll. They will stay loaded for repeated offenders
-    async cacheImages () {
+    async cacheImages (thumbnails) {
         // Create a hash map to store the images in the local storage for caching accesing a map takes linear time O(1) so it's optimal
         let thumbnailsMap = this.state.cachedImages
         let addedImage = false
-        const allImagesLoaded = document.querySelectorAll('img')
-        const allImagesLoadedArray = Array.from(allImagesLoaded)
-        allImagesLoadedArray.map(async (img, index) => {
+        thumbnails.map(async (img, index) => {
             // Get the image object and store it in the map as the loaded image
-            if(!thumbnailsMap[img.src]) {
+            if(!thumbnailsMap[img.props.src]) {
                 addedImage = true
-                thumbnailsMap[img.src] = allImagesLoaded[index]
+                thumbnailsMap[img.props.src] = thumbnails[index]
             }
         })
-        if(!addedImage) {
-            console.log('map', thumbnailsMap)
+        if(addedImage) {
             this.setState({ cachedImages: thumbnailsMap })
         }
     }
@@ -103,10 +99,12 @@ class App extends Component {
     async formatUsers (renderStart, renderFinish) {
         // Render only the first 100 and load the rest on scroll
         const firstHundred = this.state.users.slice(renderStart, renderFinish)
+        let thumbnails = []
         let formattedUsers = firstHundred.map(user => {
             const thumbnail = this.state.cachedImages[user.thumbnail] ?
-                this.state.cachedImages[user.thumbnail] :
-                (<img src={user.thumbnail} alt={user.name} />)
+                (this.state.cachedImages[user.thumbnail]) :
+                (<img src={user.thumbnail} alt={user.name}/>)
+            thumbnails.push(thumbnail)
             return (
                 <User
                     className="user"
@@ -122,7 +120,11 @@ class App extends Component {
                 >{thumbnail}</ User>
             )
         })
-        this.setState({formattedUsers})
+        this.setState({
+            formattedUsers
+        }, () => {
+            this.cacheImages(thumbnails)
+        })
     }
 
     render () {
