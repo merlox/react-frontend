@@ -64,10 +64,13 @@ class App extends Component {
             })
         }
 
-        // If we scrolled 50% of the page, render new items while removing old ones
+        // If we scrolled 70% of the page, render new items while removing old ones
         if(this.state.goingDown && window.scrollY > document.documentElement.scrollHeight * 0.70) {
+            const startPosition = this.state.renderStart + this.state.growthRate
+            const finishPosition = this.state.renderFinish + this.state.growthRate
+
             this.setState({
-                renderStart: this.state.renderStart + this.state.growthRate,
+                renderStart: (startPosition + this.state.growthRate) >= this.state.renderElements.length ? (this.state.renderElements.length - this.state.growthRate) : startPosition,
                 renderFinish: this.state.renderFinish + this.state.growthRate,
             }, () => {
                 this.formatUsers(this.state.renderStart, this.state.renderFinish)
