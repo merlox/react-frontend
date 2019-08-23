@@ -20,7 +20,7 @@ module.exports = {
             test: /\.jsx?$/,
             exclude: /node_modules/,
             query: {
-                presets: ['env', 'react']
+                presets: ['@babel/preset-env', '@babel/preset-react']
             }
         }, {
             test: /\.styl$/,
