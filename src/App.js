@@ -18,9 +18,9 @@ class App extends Component {
             users: [],
             formattedUsers: [],
             renderStart: 0, // To determine what range of elements is being rendered
-            renderFinish: 30,
-            initialElements: 30,
-            growthRate: 10, // Growth rate has to always be smaller to avoid getting stuck in the same position
+            renderFinish: 50,
+            initialElements: 50,
+            growthRate: 20, // Growth rate has to always be smaller to avoid getting stuck in the same position
             goingDown: true,
             previousScrollPosition: 0,
             cachedImages: {},
@@ -158,11 +158,11 @@ const User = (props) => {
                 <div>{props.weight.toFixed(2)} kg</div>
                 <div>{props.height.toFixed(2)} cm</div>
             </div>
-            <div className="lists">
+            <div className={professions.length == 0 ? 'hidden' : "lists"}>
                 <div>PROFESSIONS</div>
                 <ul>{professions}</ul>
             </div>
-            <div className="lists">
+            <div className={friends.length == 0 ? 'hidden' : "lists"}>
                 <div>FRIENDS WITH</div>
                 <ul>{friends}</ul>
             </div>

@@ -2,6 +2,9 @@ body
     font-family: sans-serif
     background-color: whitesmoke
 
+.hidden
+    display: none
+
 .main-container
     display: grid
     justify-content: center
@@ -25,6 +28,7 @@ body
         .user
             display: grid
             grid-row-gap: 20px
+            grid-template-rows: auto auto auto auto auto 1fr
             width: 300px
             box-shadow: 0 0 60px 0 lightgrey
             padding: 50px 80px
@@ -51,6 +55,7 @@ body
 
             .hair-color
                 text-align: center
+                font-weight: bold
 
             .measurements
                 display: flex
