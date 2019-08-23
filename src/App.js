@@ -212,15 +212,18 @@ class App extends Component {
      */
     filterByValue (value) {
         let renderElements
-        if(this.state.selectedFilter == 'profession') {
+        if(value.toLowerCase() == 'none' || this.state.selectedFilter.toLowerCase() == 'none') {
+            renderElements = this.state.users
+        } else if(this.state.selectedFilter.toLowerCase() == 'profession') {
             renderElements = this.state.users.filter(user => {
                 return user.professions.indexOf(value) != -1
             })
-        } else if(this.state.selectedFilter == 'friend') {
+        } else if(this.state.selectedFilter.toLowerCase() == 'friend') {
             renderElements = this.state.users.filter(user => {
                 return user.friends.indexOf(value) != -1
             })
         }
+
         this.setState({
             renderElements
         }, () => {
@@ -241,6 +244,8 @@ class App extends Component {
                             this.getAllProfessionsOrFriends('professions')
                         } else if(selectedFilter == 'friend') {
                             this.getAllProfessionsOrFriends('friends')
+                        } else {
+                            this.filterByValue('none')
                         }
                     }}>
                         <option value="none">None</option>
