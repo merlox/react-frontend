@@ -8,11 +8,12 @@ Clone the repository, install the dependencies with `npm i` and run the applicat
 
 If you want to modify the code, be sure to use `npm run watch` to setup webpack watch for changes. You can also run `npm run dev` for development.
 
-## Folder structure
+To run the tests, execute `npm test`.
 
+## Folder structure
 The web app contains 2 main folders:
 - dist/: Where all the files sent to the end user will be located.
-- src/: The source code containing all the javascript, html and css code.
+- src/: The source code containing all the javascript, html and css code. There are 2 folders: `__mocks__` and `__tests__` that are used for testing so don't mind them.
 
 In the root directory you have `package.json` and `webpack.config.js`. Those are the essential files for extending the application.
 
